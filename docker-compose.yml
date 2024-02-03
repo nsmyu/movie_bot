@@ -1,0 +1,27 @@
+version: '3'
+services:
+  db:
+    image: mysql:8.1
+    volumes:
+      - db-data:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      TZ: "Asia/Tokyo"
+    command: --default-authentication-plugin=mysql_native_password
+
+  web:
+    build: .
+    command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails s -p 3000 -b '0.0.0.0'"
+    volumes:
+      - .:/movie_line_bot
+    ports:
+      - 3000:3000
+    stdin_open: true
+    tty: true
+    depends_on:
+      - db
+    env_file:
+      - .env
+volumes:
+  db-data:
